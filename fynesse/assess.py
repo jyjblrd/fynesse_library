@@ -241,7 +241,7 @@ def add_dist_to_city_center(gdf, size):
 
 def generate_neighbour_metrics_single_property(property, city_gdf, neighbour_radius):
   # only look at properties within neighbour_radius km
-  north, south, east, west = helpers.gen_bounding_box(float(property["latitude"]), float(property["longitude"]), neighbour_radius*2)
+  north, south, east, west = gen_bounding_box(float(property["latitude"]), float(property["longitude"]), neighbour_radius*2)
 
   # Get neighbours within bounding box
   neighbours = city_gdf[(city_gdf["latitude"] < north) & (city_gdf["latitude"] > south) & (city_gdf["longitude"] < east) & (city_gdf["longitude"] > west)]

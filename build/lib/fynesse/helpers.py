@@ -3,8 +3,13 @@ from .config import *
 from . import access
 
 import math
+import numpy as np
 
 def km_to_lat_long(distance_km, latitude):
+  """
+  Convert a box of size distance_km into a box defined by coordinates
+  """
+
   # Radius of the Earth in kilometers
   earth_radius_km = 6371.0
 
@@ -18,6 +23,10 @@ def km_to_lat_long(distance_km, latitude):
   return lat_diff, lon_diff
 
 def gen_bounding_box(latitude, longitude, size):
+  """
+  Given coordinates and a size, generate a bounding box
+  """
+
   box_height, box_width = km_to_lat_long(size, latitude)
 
   north = latitude + box_height/2
@@ -28,27 +37,22 @@ def gen_bounding_box(latitude, longitude, size):
   return north, south, east, west
 
 def normalize(array):
+  """
+  Normalize an array from 0-1
+  """
+
   return (array-array.min())/(array.max()-array.min())
 
 def remove_outliers_iqr(data, multiplier=1.5):
   """
-  Remove outliers from a 1-dimensional NumPy array using the interquartile range (IQR) method.
-
-  Parameters:
-  - data (numpy.ndarray): 1-dimensional array containing the data.
-  - multiplier (float): Multiplier to control the sensitivity of outlier detection.
-
-  Returns:
-  - numpy.ndarray: Array without outliers.
+  Remove outliers using the iqr method
   """
-  # Calculate the first and third quartiles
+
   Q1 = np.percentile(data, 25)
   Q3 = np.percentile(data, 75)
 
-  # Calculate the IQR (Interquartile Range)
   IQR = Q3 - Q1
 
-  # Define the lower and upper bounds for outlier detection
   lower_bound = Q1 - multiplier * IQR
   upper_bound = Q3 + multiplier * IQR
 

@@ -27,6 +27,7 @@ import matplotlib.patches as mpatches
 from sklearn.neighbors import BallTree
 import geopy.distance
 from geopy.geocoders import Nominatim
+from .helpers import *
 
 
 """Place commands in this file to assess the data you have downloaded. How are missing values encoded, how are outliers encoded? What do columns represent, makes rure they are correctly labeled. How is the data indexed. Crete visualisation routines to assess the data (e.g. in bokeh). Ensure that date formats are correct and correctly timezoned."""
@@ -56,6 +57,10 @@ from geopy.geocoders import Nominatim
 #############################
 
 def get_db_data(cur, north, south, east, west, start_date, end_date):
+  """
+  Get data from the database within the given bounding box and dates
+  """
+
   cur.execute("""
     SELECT
       `pp_data`.`price`,
@@ -89,6 +94,11 @@ def get_db_data(cur, north, south, east, west, start_date, end_date):
   return data
 
 def convert_db_data_to_gdf(data):
+  """
+  Convert the raw data from the database into a geometry dataframe
+  with proper columns names, etc.
+  """
+
   df = pd.DataFrame(data, columns=["price", "date_of_transfer", "postcode", "property_type", "new_build_flag", "tenure_type", "locality", "town_city", "district", "county", "country", "latitude", "longitude"])
   
   gdf = geopandas.GeoDataFrame(df, geometry=geopandas.points_from_xy(x=df.longitude, y=df.latitude))
@@ -112,6 +122,10 @@ def convert_db_data_to_gdf(data):
   return gdf
 
 def plot_all_parameters(gdf):
+  """
+  Plot all the parameters used to train our linear model
+  """
+
   sns.lmplot(x="date_of_transfer_unix_ns", y="price", data=gdf, scatter_kws={"alpha": 0.01}, line_kws={"color": "red"})
   gdf.plot.scatter("new_build_flag", "price")
   gdf.plot.scatter("property_type", "price")
@@ -130,7 +144,11 @@ def plot_all_parameters(gdf):
 ## OSM POI helpers ##
 #####################
 
-def plot_pois(pois, graph, ax):
+def plot_pois(pois, graph, ax, north, south, east, west):
+  """
+  Plot OSM pois on a map
+  """
+
   # Plot street edges
   _, edges = ox.graph_to_gdfs(graph)
   edges.plot(ax=ax, linewidth=1, edgecolor="dimgray")
@@ -145,18 +163,31 @@ def plot_pois(pois, graph, ax):
   plt.tight_layout()
 
 def pois_to_coords(pois):
+  """
+  Convert OSM pois into coordinates
+  """
+
   return pois["geometry"].reset_index(drop=True).unary_union
 
-def dist_to_poi(poi_coords, row):
-  nearest_public_transport = nearest_points(Point(row["longitude"], row["latitude"]), poi_coords)[1]
+def dist_to_poi(poi_coords, property_row):
+  """
+  Given a property, find the distance to the closest poi
+  """
 
-  return geopy.distance.distance((float(nearest_public_transport.y), float(nearest_public_transport.x)), (float(row["latitude"]), float(row["longitude"]))).km
+  nearest_public_transport = nearest_points(Point(property_row["longitude"], property_row["latitude"]), poi_coords)[1]
+
+  return geopy.distance.distance((float(nearest_public_transport.y), float(nearest_public_transport.x)), (float(property_row["latitude"]), float(property_row["longitude"]))).km
 
 def plot_landuse(pois, graph, ax):
+    """
+    Plot land use categories in the selected area
+    """
+
     filtered_pois = pois[pois["landuse"].notna()]
     top_landuses = filtered_pois[filtered_pois["landuse"].isin(filtered_pois["landuse"].value_counts().nlargest(10).index)]
     landuse_palette = sns.color_palette("Set3", n_colors=len(top_landuses["landuse"].unique()))
 
+    # Plot landuse
     for idx, landuse_category in enumerate(top_landuses["landuse"].unique()):
         subset = filtered_pois[filtered_pois["landuse"] == landuse_category]
         subset.plot(ax=ax, color=landuse_palette[idx])
@@ -168,7 +199,9 @@ def plot_landuse(pois, graph, ax):
     ax.legend(title="Land Use", loc="upper right", bbox_to_anchor=(1.3, 1), handles=[mpatches.Patch(color=landuse_palette[i], label=landuse_category) for i, landuse_category in enumerate(top_landuses["landuse"].unique())])
 
 def get_nearest_points(src_point, candidate_gdf, k_neighbors=1):
-    """Find nearest neighbors for all source points from a set of candidate points"""
+    """
+    Find nearest neighbors for all source points from a set of candidate points
+    """
 
     src_point = np.array((src_point.x * np.pi / 180, src_point.y * np.pi / 180)).reshape(1, -1)
     candidates = np.array(candidate_gdf["geometry"].apply(lambda geom: (geom.x * np.pi / 180, geom.y * np.pi / 180)).to_list())
@@ -182,53 +215,150 @@ def get_nearest_points(src_point, candidate_gdf, k_neighbors=1):
     # Return indices and distances
     return candidate_gdf.iloc[indices[0]]
 
+def add_dist_to_city_center(gdf, size):
+  city_center_cache = {}
+  def dist_to_city_center(row):
+    city_name = f'{row["town_city"]}, {row["country"]}'
+
+    try:
+      if city_name in city_center_cache:
+        city_center = city_center_cache[city_name]
+      else:
+          city_center = ox.geocode_to_gdf(city_name).centroid
+          city_center_cache[city_name] = city_center
+      return geopy.distance.distance((float(city_center.y), float(city_center.x)), (float(row["latitude"]), float(row["longitude"]))).km
+    except:
+      return float(size/2)
+
+  gdf["dist_to_city_center"] = gdf.apply(dist_to_city_center, axis=1)
+
+  return gdf
+
 
 #########################
 ## Neighbour functions ##
 #########################
 
-def generate_neighbour_training_df(gdf):
+def generate_neighbour_metrics_single_property(property, city_gdf, neighbour_radius):
+  # only look at properties within neighbour_radius km
+  north, south, east, west = gen_bounding_box(float(property["latitude"]), float(property["longitude"]), neighbour_radius*2)
+
+  # Get neighbours within bounding box
+  neighbours = city_gdf[(city_gdf["latitude"] < north) & (city_gdf["latitude"] > south) & (city_gdf["longitude"] < east) & (city_gdf["longitude"] > west)]
+
+  # remove current property from the sample (obviously)
+  neighbours = neighbours.drop(index=property.name)
+
+  price_difference_pct = np.abs(neighbours["price"] - property["price"]) / property["price"]
+  distance_to_neighbour = neighbours["geometry"].distance(property["geometry"])
+  property_type_same = property["property_type"] == neighbours["property_type"]
+  date_delta = property["date_of_transfer_unix_ns"] - neighbours["date_of_transfer_unix_ns"]
+
+  neighbour_metrics = pd.DataFrame({
+      "price_difference_pct": price_difference_pct,
+      "distance_to_neighbour": distance_to_neighbour,
+      "property_type_same": property_type_same,
+      "date_delta": date_delta,
+  })
+
+  return neighbour_metrics
+
+def generate_neighbour_training_df(gdf, neighbour_radius):
+  """
+  Generate a dataframe containing data used to train a linear model
+  to select the most representative neighbours, ie. neighbours that
+  are most likely to have similar prices.
+  """
+
   # dont bother include street name cus postcode is generally more granular
   neighbour_training_df = pd.DataFrame(columns=["price_difference_pct", "distance_to_neighbour", "property_type_same", "new_build_flag_same", "tenure_type_same"])
 
   for index, row in gdf.iterrows():
     print(index)
-    # only look at properties within 1km
-    north, south, east, west = gen_bounding_box(float(row["latitude"]), float(row["longitude"]), RADIUS*2)
+    neighbour_metrics = generate_neighbour_metrics_single_property(row, gdf, neighbour_radius)
 
-    # Get neighbours within bounding box
-    neighbours = gdf[(gdf["latitude"] < north) & (gdf["latitude"] > south) & (gdf["longitude"] < east) & (gdf["longitude"] > west)]
-
-    # remove current property from the sample (obviously)
-    neighbours = neighbours.drop(index=row.name)
-
-    price_difference_pct = np.abs(neighbours["price"] - row["price"]) / row["price"]
-    distance_to_neighbour = neighbours["geometry"].distance(row["geometry"])
-    property_type_same = row["property_type"] == neighbours["property_type"]
-    new_build_flag_same = row["new_build_flag"] == neighbours["new_build_flag"]
-    tenure_type_same = row["tenure_type"] == neighbours["tenure_type"]
-
-    neighbour_training_df = pd.concat((neighbour_training_df, pd.DataFrame({
-        "price_difference_pct": price_difference_pct,
-        "distance_to_neighbour": distance_to_neighbour,
-        "property_type_same": property_type_same,
-        "new_build_flag_same": new_build_flag_same,
-        "tenure_type_same": tenure_type_same
-    })))
+    neighbour_training_df = pd.concat((neighbour_training_df, neighbour_metrics))
 
   return neighbour_training_df
 
 def plot_neighbour_training_df(neighbour_training_df):
-  fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
+  """
+  Plot the data in the neighbour_training_df
+  """
+
+  fig, ((ax1, ax2)) = plt.subplots(2, 1)
 
   neighbour_training_df.plot.scatter("distance_to_neighbour", "price_difference_pct", ax=ax1, alpha=0.01)
   ax2.scatter(neighbour_training_df["property_type_same"].astype(int), neighbour_training_df["price_difference_pct"], alpha=0.003)
 
 def remove_null_nieghbour_prices(gdf):
+  """
+  Replace null neighbour prices with the mean price in the area.
+  This is used when a property has no neighbours.
+  """
+
   print(f"number of null neighbour prices: {gdf['avg_neighbour_price'].isna().sum()}")
   # because there may be some null values
   gdf["avg_neighbour_price"] = gdf["avg_neighbour_price"].fillna(gdf["avg_neighbour_price"].mean())
 
   return gdf
 
+def plot_neighbour_model_error(predicted, actual):
+  """
+  Plot the errors of the neighbour model
+  """
 
+  neighbour_errors = (actual - predicted) * 100
+  neighbour_errors.name = "neighbour_errors"
+
+  colors = np.zeros(neighbour_errors.size)
+
+  bins = 1000
+  mean_error = neighbour_errors.mean()
+  std_dev = neighbour_errors.std()
+
+  for i in range(-3, 4):
+      plt.axvline(mean_error + i * std_dev, color='lightblue', linewidth=1)
+
+  hist, edges, _ = plt.hist(neighbour_errors, bins=bins, alpha=0.7, color='blue')
+
+
+  plt.xlabel('neighbour_Errors')
+  plt.ylabel('Frequency')
+  plt.title('neighbour_Errors w/ Standard Deviations')
+  plt.xlim((mean_error + -3 * std_dev, mean_error + 3 * std_dev))
+  plt.show()
+
+  pd.DataFrame(neighbour_errors).describe()
+
+
+###########################
+## Price model functions ##
+###########################
+
+def plot_model_errors(predicted, actual):
+  design = generate_design(gdf)
+
+  errors = gdf["price"] - predicted
+  errors.name = "errors"
+
+  colors = np.zeros(errors.size)
+
+  bins = 100
+  mean_error = errors.mean()
+  std_dev = errors.std()
+
+  fig, ((ax1)) = plt.subplots(1, 1)
+
+  for i in range(-3, 4):
+      ax1.axvline(mean_error + i * std_dev, color='lightblue', linewidth=1)
+
+  hist, edges, _ = ax1.hist(errors, bins=bins, alpha=0.7, color='blue', edgecolor='black')
+
+  ax1.set_xlabel('Errors')
+  ax1.set_ylabel('Frequency')
+  ax1.set_title('Errors w/ Standard Deviations')
+  ax1.set_xlim((mean_error + -3 * std_dev, mean_error + 3 * std_dev))
+  plt.show()
+
+  print(pd.DataFrame(errors).describe())

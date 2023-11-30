@@ -1,11 +1,5 @@
 from .config import *
 
-"""These are the types of import we might expect in this file
-import httplib2
-import oauth2
-import tables
-import mongodb
-import sqlite"""
 import pymysql
 from pymysql.constants import CLIENT
 import osmnx as ox
@@ -45,11 +39,19 @@ def create_database_connection(user, password, host, database, port=3306):
     return conn
 
 def get_pois(latitude, longitude, size, tags):
+  """
+  Query OSM api to get pois with certain tags in a certain area
+  """
+
   north, south, east, west = gen_bounding_box(latitude, longitude, size)
 
   return ox.features_from_bbox(north, south, east, west, tags)
 
 def get_location_info(lat, lon):
+    """
+    Convert coodinates into a city name, postcode and country
+    """
+
     # Reverse geocoding using Nominatim
     geolocator = Nominatim(user_agent="my_geocoder")
     location = geolocator.reverse((lat, lon), language='en')
