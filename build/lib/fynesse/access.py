@@ -13,8 +13,7 @@ from geopy.geocoders import Nominatim
 import urllib.request
 import os
 import zipfile
-import * from helpers
-
+from .helpers import gen_bounding_box
 
 # This file accesses the data
 
