@@ -252,7 +252,7 @@ def generate_neighbour_metrics_single_property(property, city_gdf, neighbour_rad
   price_difference_pct = np.abs(neighbours["price"] - property["price"]) / property["price"]
   distance_to_neighbour = neighbours["geometry"].distance(property["geometry"])
   property_type_same = property["property_type"] == neighbours["property_type"]
-  date_delta = property["date_of_transfer_unix_ns"] - neighbours["date_of_transfer_unix_ns"]
+  date_delta = (property["date_of_transfer_unix_ns"] - neighbours["date_of_transfer_unix_ns"])
 
   neighbour_metrics = pd.DataFrame({
       "price_difference_pct": price_difference_pct,
@@ -261,7 +261,7 @@ def generate_neighbour_metrics_single_property(property, city_gdf, neighbour_rad
       "date_delta": date_delta,
   })
 
-  return neighbour_metrics
+  return neighbour_metrics, neighbours
 
 def generate_neighbour_training_df(gdf, neighbour_radius):
   """
@@ -275,7 +275,7 @@ def generate_neighbour_training_df(gdf, neighbour_radius):
 
   for index, row in gdf.iterrows():
     print(index)
-    neighbour_metrics = generate_neighbour_metrics_single_property(row, gdf, neighbour_radius)
+    neighbour_metrics, neighbours = generate_neighbour_metrics_single_property(row, gdf, neighbour_radius)
 
     neighbour_training_df = pd.concat((neighbour_training_df, neighbour_metrics))
 
