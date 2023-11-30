@@ -18,8 +18,7 @@ jobs:
       - run: pip install coveralls
       - run: pip install nose-show-skipped
       - run: pip install mock
-      - run: sudo apt-get install -y python-setuptools
-      - run: sudo pip3 install -y conan
+      - run: pip install setuptools
       - run: python setup.py install
       - run: coverage run access-tests.py
       - run: codecov
