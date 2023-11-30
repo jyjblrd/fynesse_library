@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 
-import nose, warnings
+import unittest
+import fynesse.access as access
 
-# THese tests should be checking the known access problems, such as whether an excel file has turned a gene to a date or has more than 1,048,576 rows.
-nose.main("fynesse", defaultTest="fynesse/tests/access", argv=["", ""])
+class AccessTests(unittest.TestCase):
+    def test_get_pois(self):
+        res = access.get_pois(53.4083112, -1.5238095, 5, {"amenity": True})
+        assert res.size != 0
+
+    def test_get_location_info(self):
+        res = access.get_location_info(53.4083112, -1.5238095)
+        assert res == ('Sheffield', 'United Kingdom', 'S6 4SE')
+
+
+if __name__ == '__main__':
+    unittest.main()

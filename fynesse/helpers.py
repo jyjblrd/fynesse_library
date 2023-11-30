@@ -31,24 +31,11 @@ def normalize(array):
   return (array-array.min())/(array.max()-array.min())
 
 def remove_outliers_iqr(data, multiplier=1.5):
-  """
-  Remove outliers from a 1-dimensional NumPy array using the interquartile range (IQR) method.
-
-  Parameters:
-  - data (numpy.ndarray): 1-dimensional array containing the data.
-  - multiplier (float): Multiplier to control the sensitivity of outlier detection.
-
-  Returns:
-  - numpy.ndarray: Array without outliers.
-  """
-  # Calculate the first and third quartiles
   Q1 = np.percentile(data, 25)
   Q3 = np.percentile(data, 75)
 
-  # Calculate the IQR (Interquartile Range)
   IQR = Q3 - Q1
 
-  # Define the lower and upper bounds for outlier detection
   lower_bound = Q1 - multiplier * IQR
   upper_bound = Q3 + multiplier * IQR
 
