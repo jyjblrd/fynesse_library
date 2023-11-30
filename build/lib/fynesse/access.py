@@ -13,6 +13,7 @@ from geopy.geocoders import Nominatim
 import urllib.request
 import os
 import zipfile
+import * from helpers
 
 
 # This file accesses the data
