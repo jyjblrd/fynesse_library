@@ -1,0 +1,16 @@
+pandas
+numpy
+jupyter
+matplotlib
+pymysql
+osmnx
+datetime
+statsmodels
+geopandas
+geopy
+shapely
+seaborn
+scikit-learn
+
+[interactive html plots]
+bokeh
