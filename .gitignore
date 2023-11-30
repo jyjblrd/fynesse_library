@@ -2,3 +2,4 @@ build/
 dist/
 cache/
 __pycache__/
+.coverage
