@@ -19,6 +19,7 @@ jobs:
       - run: pip install nose-show-skipped
       - run: pip install mock
       - run: pip install setuptools
+      - run: pip install httpcore --upgrade
       - run: python setup.py install
       - run: coverage run access-tests.py
       - run: codecov
