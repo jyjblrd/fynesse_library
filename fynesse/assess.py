@@ -146,7 +146,7 @@ def plot_all_parameters(gdf):
 ## OSM POI helpers ##
 #####################
 
-def plot_pois(pois, graph, ax, north, south, east, west):
+def plot_pois(pois, graph, ax, north, south, east, west, title):
   """
   Plot OSM pois on a map
   """
@@ -159,6 +159,7 @@ def plot_pois(pois, graph, ax, north, south, east, west):
   ax.set_ylim([south, north])
   ax.set_xlabel("longitude")
   ax.set_ylabel("latitude")
+  ax.set_title(title)
 
   # Plot tourist places
   pois.plot(ax=ax, alpha=1, markersize=50)
@@ -252,7 +253,7 @@ def generate_neighbour_metrics_single_property(property, city_gdf, neighbour_rad
   if property.name in neighbours.index:
     neighbours = neighbours.drop(index=property.name)
 
-  price_difference_pct = np.abs(neighbours["price"] - property["price"]) / property["price"]
+  price_difference_pct = np.abs(neighbours["price"] - property["price"]) / property["price"] if property["price"] is not None else None
   distance_to_neighbour = neighbours["geometry"].distance(property["geometry"])
   property_type_same = property["property_type"] == neighbours["property_type"]
   date_delta = (property["date_of_transfer_unix_ns"] - neighbours["date_of_transfer_unix_ns"])
@@ -289,10 +290,11 @@ def plot_neighbour_training_df(neighbour_training_df):
   Plot the data in the neighbour_training_df
   """
 
-  fig, ((ax1, ax2)) = plt.subplots(2, 1)
+  fig, ((ax1, ax2, ax3)) = plt.subplots(1, 3, figsize=(15, 15))
 
   neighbour_training_df.plot.scatter("distance_to_neighbour", "price_difference_pct", ax=ax1, alpha=0.01)
   ax2.scatter(neighbour_training_df["property_type_same"].astype(int), neighbour_training_df["price_difference_pct"], alpha=0.003)
+  neighbour_training_df.plot.scatter("date_delta", "price_difference_pct", ax=ax1, alpha=0.01)
 
 def remove_null_nieghbour_prices(gdf):
   """
