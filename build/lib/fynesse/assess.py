@@ -297,6 +297,8 @@ def plot_neighbour_model_error(predicted, actual):
   Plot the errors of the neighbour model
   """
 
+  fig, ((ax1)) = plt.subplots(1, 1, figsize=(5, 5))
+
   neighbour_errors = (actual - predicted) * 100
   neighbour_errors.name = "neighbour_errors"
 
@@ -307,16 +309,15 @@ def plot_neighbour_model_error(predicted, actual):
   std_dev = neighbour_errors.std()
 
   for i in range(-3, 4):
-      plt.axvline(mean_error + i * std_dev, color='lightblue', linewidth=1)
+      ax1.axvline(mean_error + i * std_dev, color='lightblue', linewidth=1)
 
-  hist, edges, _ = plt.hist(neighbour_errors, bins=bins, alpha=0.7)
+  ax1.hist(neighbour_errors, bins=bins, alpha=0.7)
 
 
-  plt.xlabel('neighbour_Errors')
-  plt.ylabel('Frequency')
-  plt.title('neighbour_Errors w/ Standard Deviations')
-  plt.xlim((mean_error + -3 * std_dev, mean_error + 3 * std_dev))
-  plt.show()
+  ax1.set_xlabel('neighbour_Errors')
+  ax1.set_ylabel('Frequency')
+  ax1.set_title('neighbour_Errors w/ Standard Deviations')
+  ax1.set_xlim((mean_error + -3 * std_dev, mean_error + 3 * std_dev))
 
   print(pd.DataFrame(neighbour_errors).describe())
 
