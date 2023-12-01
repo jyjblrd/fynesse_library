@@ -16,5 +16,5 @@ import scipy.stats"""
 
 """Address a particular question that arises from the data"""
 
-# I chose to put the majority of the "address" code in the python notebook, 
+# I chose to put all of the "address" code in the python notebook, 
 # since I think it tells an important part of the story.

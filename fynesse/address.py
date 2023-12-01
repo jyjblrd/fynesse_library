@@ -16,5 +16,11 @@ import scipy.stats"""
 
 """Address a particular question that arises from the data"""
 
-# I chose to put the majority of the "address" code in the python notebook, 
-# since I think it tells an important part of the story.
+# I chose to put all of the "address" code in the python notebook, 
+# since I think it tells illustrates my thought process better
+# and there isnt that much code to it. Also I feel like it isnt
+# very reusable code, so it doesn't make much sense to put in 
+# a library.
+
+# The code that belongs here is all the model training and 
+# design matrix generation functions.
