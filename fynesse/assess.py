@@ -238,7 +238,7 @@ def generate_neighbour_metrics_single_property(property, city_gdf, neighbour_rad
 
   price_difference_pct = np.abs(neighbours["price"] - property["price"]) / property["price"] if property["price"] is not None else None
   distance_to_neighbour = neighbours["geometry"].distance(property["geometry"])
-  property_type_same = property["property_type"] == neighbours["property_type"]
+  property_type_same = float(property["property_type"] == neighbours["property_type"])
   date_delta = np.abs(property["date_of_transfer_unix_ns"] - neighbours["date_of_transfer_unix_ns"])
 
   neighbour_metrics = pd.DataFrame({
