@@ -159,7 +159,7 @@ def dist_to_poi(poi_coords, property_row):
   """
   Given a property, find the distance to the closest poi
   """
-  if len(poi_coords) == 0:
+  if len(poi_coords.geoms) == 0:
     return 0.0
   
   nearest_point = nearest_points(Point(property_row["longitude"], property_row["latitude"]), poi_coords)[1]
