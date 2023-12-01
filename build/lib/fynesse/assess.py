@@ -36,26 +36,6 @@ plt.style.use('seaborn-v0_8-muted')
 
 """Place commands in this file to assess the data you have downloaded. How are missing values encoded, how are outliers encoded? What do columns represent, makes rure they are correctly labeled. How is the data indexed. Crete visualisation routines to assess the data (e.g. in bokeh). Ensure that date formats are correct and correctly timezoned."""
 
-
-# def data():
-#     """Load the data from access and ensure missing values are correctly encoded as well as indices correct, column names informative, date and times correctly formatted. Return a structured data structure such as a data frame."""
-#     df = access.data()
-#     raise NotImplementedError
-
-# def query(data):
-#     """Request user input for some aspect of the data."""
-#     raise NotImplementedError
-
-# def view(data):
-#     """Provide a view of the data that allows the user to verify some aspect of its quality."""
-#     raise NotImplementedError
-
-# def labelled(data):
-#     """Provide a labelled set of data ready for supervised learning."""
-#     raise NotImplementedError
-
-
-
 #############################
 ## Load data from database ##
 #############################
@@ -129,19 +109,20 @@ def plot_all_parameters(gdf):
   """
   Plot all the parameters used to train our linear model
   """
+  fig, ((ax1, ax2, ax3, ax4), (ax5, ax6, ax7, ax8), (ax9, ax10, ax11, ax12)) = plt.subplots(3, 4, figsize=(20, 15))
 
-  sns.lmplot(x="date_of_transfer_unix_ns", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
-  gdf.plot.scatter("new_build_flag", "price")
-  gdf.plot.scatter("property_type", "price")
-  gdf.plot.scatter("tenure_type", "price")
-  sns.lmplot(x="dist_to_city_center", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_public_transport", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_shop", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_school", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_industrial", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_recreation_ground", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_nature", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
-  sns.lmplot(x="avg_neighbour_price", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
+  sns.regplot(x="date_of_transfer_unix_ns", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax1)
+  gdf.plot.scatter("new_build_flag", "price", ax=ax2)
+  gdf.plot.scatter("property_type", "price", ax=ax3)
+  gdf.plot.scatter("tenure_type", "price", ax=ax4)
+  sns.regplot(x="dist_to_city_center", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax5)
+  sns.regplot(x="dist_to_public_transport", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax6)
+  sns.regplot(x="dist_to_shop", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax7)
+  sns.regplot(x="dist_to_school", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax8)
+  sns.regplot(x="dist_to_industrial", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax9)
+  sns.regplot(x="dist_to_recreation_ground", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax10)
+  sns.regplot(x="dist_to_nature", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax11)
+sns.regplot(x="avg_neighbour_price", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax12)
 
 
 #####################
