@@ -159,10 +159,12 @@ def dist_to_poi(poi_coords, property_row):
   """
   Given a property, find the distance to the closest poi
   """
+  if len(poi_coords) == 0:
+    return 0.0
+  
+  nearest_point = nearest_points(Point(property_row["longitude"], property_row["latitude"]), poi_coords)[1]
 
-  nearest_public_transport = nearest_points(Point(property_row["longitude"], property_row["latitude"]), poi_coords)[1]
-
-  return geopy.distance.distance((float(nearest_public_transport.y), float(nearest_public_transport.x)), (float(property_row["latitude"]), float(property_row["longitude"]))).km
+  return geopy.distance.distance((float(nearest_point.y), float(nearest_point.x)), (float(property_row["latitude"]), float(property_row["longitude"]))).km
 
 def plot_landuse(pois, graph, ax):
     """
