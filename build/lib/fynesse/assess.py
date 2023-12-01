@@ -122,7 +122,7 @@ def plot_all_parameters(gdf):
   sns.regplot(x="dist_to_industrial", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax9)
   sns.regplot(x="dist_to_recreation_ground", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax10)
   sns.regplot(x="dist_to_nature", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax11)
-sns.regplot(x="avg_neighbour_price", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax12)
+  sns.regplot(x="avg_neighbour_price", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"}, ax=ax12)
 
 
 #####################
