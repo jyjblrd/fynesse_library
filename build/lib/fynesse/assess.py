@@ -276,6 +276,8 @@ def plot_neighbour_training_df(neighbour_training_df):
 
   neighbour_training_df.plot.scatter("distance_to_neighbour", "price_difference_pct", ax=ax1, alpha=0.01)
   ax2.scatter(neighbour_training_df["property_type_same"].astype(int), neighbour_training_df["price_difference_pct"], alpha=0.003)
+  ax2.set_xlabel("property_type_same")
+  ax2.set_ylabel("price_difference_pct")
   neighbour_training_df.plot.scatter("date_delta", "price_difference_pct", ax=ax3, alpha=0.01)
 
 def remove_null_nieghbour_prices(gdf):
