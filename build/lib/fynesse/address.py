@@ -18,5 +18,3 @@ import scipy.stats"""
 
 # I chose to put the majority of the "address" code in the python notebook, 
 # since I think it tells an important part of the story.
-
-import pandas as pd

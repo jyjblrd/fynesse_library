@@ -28,7 +28,9 @@ from sklearn.neighbors import BallTree
 import geopy.distance
 from geopy.geocoders import Nominatim
 from .helpers import *
+import warnings
 
+warnings.simplefilter(action='ignore', category=FutureWarning)
 plt.style.use('seaborn-v0_8-muted')
 
 
@@ -278,7 +280,6 @@ def generate_neighbour_training_df(gdf, neighbour_radius):
   neighbour_training_df = pd.DataFrame(columns=["price_difference_pct", "distance_to_neighbour", "property_type_same", "new_build_flag_same", "tenure_type_same"])
 
   for index, row in gdf.iterrows():
-    print(index)
     neighbour_metrics, neighbours = generate_neighbour_metrics_single_property(row, gdf, neighbour_radius)
 
     neighbour_training_df = pd.concat((neighbour_training_df, neighbour_metrics))
@@ -334,7 +335,7 @@ def plot_neighbour_model_error(predicted, actual):
   plt.xlim((mean_error + -3 * std_dev, mean_error + 3 * std_dev))
   plt.show()
 
-  pd.DataFrame(neighbour_errors).describe()
+  print(pd.DataFrame(neighbour_errors).describe())
 
 
 ###########################
