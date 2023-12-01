@@ -291,11 +291,11 @@ def plot_neighbour_training_df(neighbour_training_df):
   Plot the data in the neighbour_training_df
   """
 
-  fig, ((ax1, ax2, ax3)) = plt.subplots(1, 3, figsize=(15, 15))
+  fig, ((ax1, ax2, ax3)) = plt.subplots(1, 3, figsize=(15, 5))
 
   neighbour_training_df.plot.scatter("distance_to_neighbour", "price_difference_pct", ax=ax1, alpha=0.01)
   ax2.scatter(neighbour_training_df["property_type_same"].astype(int), neighbour_training_df["price_difference_pct"], alpha=0.003)
-  neighbour_training_df.plot.scatter("date_delta", "price_difference_pct", ax=ax1, alpha=0.01)
+  neighbour_training_df.plot.scatter("date_delta", "price_difference_pct", ax=ax3, alpha=0.01)
 
 def remove_null_nieghbour_prices(gdf):
   """
