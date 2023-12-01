@@ -30,7 +30,7 @@ from geopy.geocoders import Nominatim
 from .helpers import *
 import warnings
 
-warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.filterwarnings("ignore")
 plt.style.use('seaborn-v0_8-muted')
 
 
@@ -262,8 +262,8 @@ def generate_neighbour_training_df(gdf, neighbour_radius):
 
   for index, row in gdf.iterrows():
     neighbour_metrics, neighbours = generate_neighbour_metrics_single_property(row, gdf, neighbour_radius)
-
-    neighbour_training_df = pd.concat((neighbour_training_df, neighbour_metrics))
+    if len(neighbour_metrics) != 0:
+      neighbour_training_df = pd.concat((neighbour_training_df, neighbour_metrics))
 
   return neighbour_training_df
 
