@@ -128,18 +128,18 @@ def plot_all_parameters(gdf):
   Plot all the parameters used to train our linear model
   """
 
-  sns.lmplot(x="date_of_transfer_unix_ns", y="price", data=gdf, scatter_kws={"alpha": 0.01}, line_kws={"color": "red"})
+  sns.lmplot(x="date_of_transfer_unix_ns", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
   gdf.plot.scatter("new_build_flag", "price")
   gdf.plot.scatter("property_type", "price")
   gdf.plot.scatter("tenure_type", "price")
-  sns.lmplot(x="dist_to_city_center", y="price", data=gdf, scatter_kws={"alpha": 0.01}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_public_transport", y="price", data=gdf, scatter_kws={"alpha": 0.01}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_shop", y="price", data=gdf, scatter_kws={"alpha": 0.01}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_school", y="price", data=gdf, scatter_kws={"alpha": 0.01}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_industrial", y="price", data=gdf, scatter_kws={"alpha": 0.01}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_recreation_ground", y="price", data=gdf, scatter_kws={"alpha": 0.01}, line_kws={"color": "red"})
-  sns.lmplot(x="dist_to_nature", y="price", data=gdf, scatter_kws={"alpha": 0.01}, line_kws={"color": "red"})
-  sns.lmplot(x="avg_neighbour_price", y="price", data=gdf, scatter_kws={"alpha": 0.01}, line_kws={"color": "red"})
+  sns.lmplot(x="dist_to_city_center", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
+  sns.lmplot(x="dist_to_public_transport", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
+  sns.lmplot(x="dist_to_shop", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
+  sns.lmplot(x="dist_to_school", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
+  sns.lmplot(x="dist_to_industrial", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
+  sns.lmplot(x="dist_to_recreation_ground", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
+  sns.lmplot(x="dist_to_nature", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
+  sns.lmplot(x="avg_neighbour_price", y="price", data=gdf, scatter_kws={"alpha": 0.2}, line_kws={"color": "red"})
 
 
 #####################
@@ -161,7 +161,7 @@ def plot_pois(pois, graph, ax, north, south, east, west):
   ax.set_ylabel("latitude")
 
   # Plot tourist places
-  pois.plot(ax=ax, color="blue", alpha=1, markersize=50)
+  pois.plot(ax=ax, alpha=1, markersize=50)
   plt.tight_layout()
 
 def pois_to_coords(pois):
@@ -322,7 +322,7 @@ def plot_neighbour_model_error(predicted, actual):
   for i in range(-3, 4):
       plt.axvline(mean_error + i * std_dev, color='lightblue', linewidth=1)
 
-  hist, edges, _ = plt.hist(neighbour_errors, bins=bins, alpha=0.7, color='blue')
+  hist, edges, _ = plt.hist(neighbour_errors, bins=bins, alpha=0.7)
 
 
   plt.xlabel('neighbour_Errors')
@@ -353,7 +353,7 @@ def plot_model_errors(predicted, actual):
   for i in range(-3, 4):
       ax1.axvline(mean_error + i * std_dev, color='lightblue', linewidth=1)
 
-  hist, edges, _ = ax1.hist(errors, bins=bins, alpha=0.7, color='blue', edgecolor='black')
+  hist, edges, _ = ax1.hist(errors, bins=bins, alpha=0.7)
 
   ax1.set_xlabel('Errors')
   ax1.set_ylabel('Frequency')
