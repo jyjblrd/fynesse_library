@@ -337,9 +337,7 @@ def plot_neighbour_model_error(predicted, actual):
 ###########################
 
 def plot_model_errors(predicted, actual):
-  design = generate_design(gdf)
-
-  errors = gdf["price"] - predicted
+  errors = actual - predicted
   errors.name = "errors"
 
   colors = np.zeros(errors.size)
