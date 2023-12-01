@@ -249,7 +249,7 @@ def generate_neighbour_metrics_single_property(property, city_gdf, neighbour_rad
   neighbours = city_gdf[(city_gdf["latitude"] < north) & (city_gdf["latitude"] > south) & (city_gdf["longitude"] < east) & (city_gdf["longitude"] > west)]
 
   # remove current property from the sample (obviously)
-  if row.name in neighbours.index:
+  if property.name in neighbours.index:
     neighbours = neighbours.drop(index=property.name)
 
   price_difference_pct = np.abs(neighbours["price"] - property["price"]) / property["price"]
