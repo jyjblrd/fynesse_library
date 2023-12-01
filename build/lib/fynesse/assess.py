@@ -344,7 +344,7 @@ def plot_model_errors(predicted, actual):
 
   colors = np.zeros(errors.size)
 
-  bins = 100
+  bins = 30
   mean_error = errors.mean()
   std_dev = errors.std()
 
